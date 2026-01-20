@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Menú</title>
+    {% csrf_token %}
+</head>
+<body>
+
+<h1>Menú</h1>
+
+{% for dish in dishes %}
+    <h2>{{ dish.name }} (${{ dish.price }})</h2>
+
+    {% for p in dish.presentations.all %}
+        <button onclick="addToCart({{ p.id }})">
+            {{ p.name }} (+${{ p.extra_price }})
+        </button>
+    {% endfor %}
+{% endfor %}
+
+<hr>
+
+<h2>Carrito</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+    <thead>
+        <tr>
+            <th>Platillo</th>
+            <th>Presentación</th>
+            <th>Precio</th>
+            <th>Cantidad</th>
+            <th>Subtotal</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody id="cart-body"></tbody>
+    <tfoot>
+    <tr>
+        <th colspan="4" style="text-align:right">TOTAL</th>
+        <th id="cart-total">$0.00</th>
+        <th></th>
+    </tr>
+</tfoot>
+</table>
+
+<script>
+const initialCart = {{ cart|safe }};
+
+function getCSRFToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]').value;
+}
+
+function renderCart(cart) {
+    const tbody = document.getElementById("cart-body");
+    const totalEl = document.getElementById("cart-total");
+
+    tbody.innerHTML = "";
+
+    let total = 0;
+    let hasItems = false;
+
+    for (const key in cart) {
+        hasItems = true;
+        const item = cart[key];
+        const subtotal = item.price * item.quantity;
+        total += subtotal;
+
+        tbody.innerHTML += `
+            <tr>
+                <td>${item.dish}</td>
+                <td>${item.presentation}</td>
+                <td>$${item.price.toFixed(2)}</td>
+                <td>${item.quantity}</td>
+                <td>$${subtotal.toFixed(2)}</td>
+                <td>
+                    <button onclick="removeFromCart(${key})">❌</button>
+                </td>
+            </tr>
+        `;
+    }
+
+    if (!hasItems) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6">Carrito vacío</td>
+            </tr>
+        `;
+        total = 0;
+    }
+
+    totalEl.innerText = `$${total.toFixed(2)}`;
+}
+
+function addToCart(presentationId) {
+    fetch("{% url 'add_to_cart' %}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-CSRFToken": getCSRFToken()
+        },
+        body: "presentation_id=" + presentationId
+    })
+    .then(res => res.json())
+    .then(data => {
+        renderCart(data.cart);
+    });
+}
+
+function removeFromCart(presentationId) {
+    fetch("{% url 'remove_from_cart' %}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-CSRFToken": getCSRFToken()
+        },
+        body: "presentation_id=" + presentationId
+    })
+    .then(res => res.json())
+    .then(data => {
+        renderCart(data.cart);
+    });
+}
+
+// 🔥 Render inicial
+renderCart(initialCart);
+</script>
+
+
+</body>
+</html>
