@@ -1,7 +1,9 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
-from .models import Dish, Presentation
+from .models import Dish, Presentation, Sale, SaleItem
 from django.views.decorators.http import require_POST
+from django.shortcuts import redirect
+from django.contrib import messages
 
 
 def menu_view(request):
@@ -48,3 +50,32 @@ def remove_from_cart(request):
         request.session["cart"] = cart
 
     return JsonResponse({"ok": True, "cart": cart})
+
+
+@require_POST
+def save_sale(request):
+    cart = request.session.get("cart", {})
+
+    if not cart:
+        return redirect("menu")
+
+    sale = Sale.objects.create()
+
+    for presentation_id, item in cart.items():
+        presentation = Presentation.objects.get(id=presentation_id)
+
+        SaleItem.objects.create(
+            sale=sale,
+            presentation=presentation,
+            quantity=item["quantity"],
+            price=item["price"],  # precio congelado
+        )
+
+    sale.calculate_total()
+
+    messages.success(request, f"Venta #{sale.id} guardada correctamente")
+
+    # Limpiar carrito
+    request.session["cart"] = {}
+
+    return redirect("menu")

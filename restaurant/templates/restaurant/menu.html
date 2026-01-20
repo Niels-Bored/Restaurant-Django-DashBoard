@@ -43,6 +43,18 @@
 </tfoot>
 </table>
 
+<form method="POST" action="{% url 'save_sale' %}">
+    {% csrf_token %}
+    <button type="submit">
+        💾 Guardar venta
+    </button>
+</form>
+{% if messages %}
+    {% for message in messages %}
+        <p style="color:green">{{ message }}</p>
+    {% endfor %}
+{% endif %}
+
 <script>
 const initialCart = {{ cart|safe }};
 
