@@ -25,7 +25,7 @@ class SaleItemInline(admin.TabularInline):
 
 @admin.register(Sale)
 class SaleAdmin(admin.ModelAdmin):
-    list_display = ("id", "created_at", "total")
+    list_display = ("id", "created_at", "total", "status")
     readonly_fields = ("created_at", "total")
     inlines = [SaleItemInline]
 

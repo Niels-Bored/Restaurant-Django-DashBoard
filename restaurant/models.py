@@ -53,13 +53,19 @@ class Sale(models.Model):
         max_digits=10, decimal_places=2, default=0, verbose_name="Total"
     )
 
+    status = models.BooleanField(
+        default=False,
+        verbose_name="Completada"
+    )
+
     class Meta:
         verbose_name = "Venta"
         verbose_name_plural = "Ventas"
         ordering = ["-created_at"]
 
     def __str__(self):
-        return f"Venta #{self.id} - {self.created_at:%Y-%m-%d %H:%M}"
+        estado = "Completada" if self.status else "Pendiente"
+        return f"Venta #{self.id} - {estado}"
 
     def calculate_total(self):
         total = (
