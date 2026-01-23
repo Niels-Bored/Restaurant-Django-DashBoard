@@ -1,0 +1,101 @@
+{% extends "restaurant/base.html" %}
+
+{% block title %}Órdenes{% endblock %}
+
+{% block content %}
+
+<style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 40px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .pending {
+            background-color: #fff3cd;
+        }
+        .completed {
+            background-color: #d4edda;
+        }
+    </style>
+
+<h1>Órdenes pendientes</h1>
+
+{% if pending_orders %}
+<table>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Fecha</th>
+            <th>Total</th>
+            <th>Detalles</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for sale in pending_orders %}
+        <tr class="pending">
+            <td>{{ sale.id }}</td>
+            <td>{{ sale.created_at|date:"Y-m-d H:i" }}</td>
+            <td>${{ sale.total }}</td>
+            <td>
+                <ul>
+                    {% for item in sale.items.all %}
+                        <li>
+                            {{ item.quantity }} x {{ item.presentation }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No hay órdenes pendientes.</p>
+{% endif %}
+
+<hr>
+
+<h1>Órdenes completadas</h1>
+
+{% if completed_orders %}
+<table>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Fecha</th>
+            <th>Total</th>
+            <th>Detalles</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for sale in completed_orders %}
+        <tr class="completed">
+            <td>{{ sale.id }}</td>
+            <td>{{ sale.created_at|date:"Y-m-d H:i" }}</td>
+            <td>${{ sale.total }}</td>
+            <td>
+                <ul>
+                    {% for item in sale.items.all %}
+                        <li>
+                            {{ item.quantity }} x {{ item.presentation }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No hay órdenes completadas.</p>
+{% endif %}
+
+{% endblock %}

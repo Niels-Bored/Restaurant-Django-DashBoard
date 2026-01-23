@@ -79,3 +79,15 @@ def save_sale(request):
     request.session["cart"] = {}
 
     return redirect("menu")
+
+
+def orders_list(request):
+    pending_orders = Sale.objects.filter(status=False).order_by("created_at")
+    completed_orders = Sale.objects.filter(status=True).order_by("-created_at")
+
+    context = {
+        "pending_orders": pending_orders,
+        "completed_orders": completed_orders,
+    }
+
+    return render(request, "restaurant/orders_list.html", context)

@@ -1,10 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Menú</title>
-    {% csrf_token %}
-</head>
-<body>
+{% extends "restaurant/base.html" %}
+
+{% block title %}Menú{% endblock %}
+
+{% block content %}
 
 <h1>Menú</h1>
 
@@ -35,20 +33,19 @@
     </thead>
     <tbody id="cart-body"></tbody>
     <tfoot>
-    <tr>
-        <th colspan="4" style="text-align:right">TOTAL</th>
-        <th id="cart-total">$0.00</th>
-        <th></th>
-    </tr>
-</tfoot>
+        <tr>
+            <th colspan="4" style="text-align:right">TOTAL</th>
+            <th id="cart-total">$0.00</th>
+            <th></th>
+        </tr>
+    </tfoot>
 </table>
 
 <form method="POST" action="{% url 'save_sale' %}">
     {% csrf_token %}
-    <button type="submit">
-        💾 Guardar venta
-    </button>
+    <button type="submit">💾 Guardar venta</button>
 </form>
+
 {% if messages %}
     {% for message in messages %}
         <p style="color:green">{{ message }}</p>
@@ -137,6 +134,4 @@ function removeFromCart(presentationId) {
 renderCart(initialCart);
 </script>
 
-
-</body>
-</html>
+{% endblock %}
